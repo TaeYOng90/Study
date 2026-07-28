@@ -1,0 +1,43 @@
+name: Temporary BTCUSDT 1H V2 Backtest
+
+on:
+  push:
+    branches:
+      - tmp/btcusdt-1h-v2-backtest-20260728
+    paths:
+      - 'tmp_backtest_1h/**'
+      - '.github/workflows/tmp_btc_1h_v2_backtest.yml'
+  pull_request:
+    branches:
+      - master
+    paths:
+      - 'tmp_backtest_1h/**'
+      - '.github/workflows/tmp_btc_1h_v2_backtest.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  backtest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: tmp/btcusdt-1h-v2-backtest-20260728
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install pandas numpy requests
+      - run: python tmp_backtest_1h/run_backtest.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: btcusdt-1h-v2-backtest-results
+          path: tmp_backtest_1h/results
+      - name: Commit results
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add tmp_backtest_1h/results
+          git commit -m "Add BTCUSDT 1h V2 backtest results" || exit 0
+          git push origin HEAD:tmp/btcusdt-1h-v2-backtest-20260728
