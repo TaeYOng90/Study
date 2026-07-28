@@ -30,7 +30,13 @@ jobs:
           python-version: '3.12'
       - run: pip install pandas numpy requests
       - run: python tmp_backtest/run_backtest.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: btcusdt-backtest-results
+          path: tmp_backtest/results
+          if-no-files-found: error
       - name: Commit results
+        continue-on-error: true
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
