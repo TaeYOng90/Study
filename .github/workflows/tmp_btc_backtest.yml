@@ -7,6 +7,12 @@ on:
     paths:
       - 'tmp_backtest/**'
       - '.github/workflows/tmp_btc_backtest.yml'
+  pull_request:
+    branches:
+      - master
+    paths:
+      - 'tmp_backtest/**'
+      - '.github/workflows/tmp_btc_backtest.yml'
   workflow_dispatch:
 
 permissions:
@@ -30,4 +36,4 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add tmp_backtest/results
           git commit -m "Add BTCUSDT backtest results" || exit 0
-          git push
+          git push origin HEAD:tmp/btcusdt-bb220-ma20-backtest-20260728
