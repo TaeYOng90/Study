@@ -1,0 +1,33 @@
+name: Temporary BTCUSDT Backtest
+
+on:
+  push:
+    branches:
+      - tmp/btcusdt-bb220-ma20-backtest-20260728
+    paths:
+      - 'tmp_backtest/**'
+      - '.github/workflows/tmp_btc_backtest.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  backtest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: tmp/btcusdt-bb220-ma20-backtest-20260728
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install pandas numpy requests
+      - run: python tmp_backtest/run_backtest.py
+      - name: Commit results
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add tmp_backtest/results
+          git commit -m "Add BTCUSDT backtest results" || exit 0
+          git push
