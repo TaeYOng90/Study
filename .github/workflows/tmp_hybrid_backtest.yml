@@ -1,0 +1,44 @@
+name: Temporary BTCUSDT Hybrid Backtest
+
+on:
+  push:
+    branches:
+      - tmp/btcusdt-hybrid-d1-1h-backtest-20260728
+    paths:
+      - 'tmp_hybrid_backtest/**'
+      - '.github/workflows/tmp_hybrid_backtest.yml'
+  pull_request:
+    branches:
+      - master
+    paths:
+      - 'tmp_hybrid_backtest/**'
+      - '.github/workflows/tmp_hybrid_backtest.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  backtest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: tmp/btcusdt-hybrid-d1-1h-backtest-20260728
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install pandas numpy requests
+      - run: python tmp_hybrid_backtest/run_backtest.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: btcusdt-hybrid-backtest-results
+          path: tmp_hybrid_backtest/results
+      - name: Commit results
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add tmp_hybrid_backtest/results
+          git commit -m "Add BTCUSDT hybrid backtest results" || exit 0
+          git pull --rebase origin tmp/btcusdt-hybrid-d1-1h-backtest-20260728 || true
+          git push origin HEAD:tmp/btcusdt-hybrid-d1-1h-backtest-20260728
